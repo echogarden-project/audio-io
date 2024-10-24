@@ -1,4 +1,4 @@
-# Raw Audio I/O
+# Echogarden Audio I/O
 
 A Node.js package that provides low-level audio outputs (**audio inputs are not implemented yet**) for common audio APIs, on various platforms:
 
@@ -15,7 +15,7 @@ The addons are distributed as **precompiled binaries only**, which means the pac
 ## Installation
 
 ```sh
-npm install @echogarden/raw-audio-io
+npm install @echogarden/audio-io
 ```
 
 ## Usage example
@@ -26,7 +26,7 @@ Notes:
 
 ```ts
 // Import module
-import { initAudioOutput } from '@echogarden/raw-audio-io'
+import { initAudioOutput } from '@echogarden/audio-io'
 
 // Define an audio output handler function
 function audioOutputHandler(outputBuffer: Int16Array) {

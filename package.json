@@ -1,5 +1,5 @@
 {
-	"name": "@echogarden/raw-audio-io",
+	"name": "@echogarden/audio-io",
 	"version": "0.0.2",
 	"description": "Provides low-level audio I/O via platform-specific APIs. Includes precompiled addons for all supported platforms.",
 	"author": "Rotem Dan",
@@ -12,10 +12,10 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/echogarden-project/raw-audio-io"
+		"url": "https://github.com/echogarden-project/audio-io"
 	},
 	"bugs": {
-		"url": "https://github.com/echogarden-project/raw-audio-io/issues"
+		"url": "https://github.com/echogarden-project/audio-io/issues"
 	},
 	"engines": {
 		"node": ">=18"

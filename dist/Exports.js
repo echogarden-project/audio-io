@@ -79,7 +79,7 @@ async function getAudioOutputModuleForCurrentPlatform() {
         audioOutputModule = createRequire(import.meta.url)('../addons/linux-alsa/linux-x64-alsa-output.node');
     }
     else {
-        throw new Error(`raw-audio-io initialization error: unsupported platform ${platform}, ${arch}`);
+        throw new Error(`audio-io initialization error: unsupported platform ${platform}, ${arch}`);
     }
     return audioOutputModule;
 }
