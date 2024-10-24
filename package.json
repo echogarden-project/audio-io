@@ -1,6 +1,6 @@
 {
 	"name": "@echogarden/raw-audio-io",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Provides low-level audio I/O via platform-specific APIs. Includes precompiled addons for all supported platforms.",
 	"author": "Rotem Dan",
 	"license": "MIT",
@@ -33,7 +33,9 @@
 	"files": [
 		"src",
 		"dist",
-		"addons",
+		"addons/windows-mme",
+		"addons/macos-coreaudio",
+		"addons/linux-alsa",
 		"README.md",
 		"LICENSE.md",
 		"tsconfig.json"

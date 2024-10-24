@@ -34,10 +34,10 @@ export async function initAudioOutput(config, handler) {
             sampleOffset += audioBuffer.length;
         };
     }
-    const result = await module.initAudioOutput(config, wrappedHandler);
-    const nativeDisposeMethod = result.dispose;
+    const nativeResult = await module.initAudioOutput(config, wrappedHandler);
+    const nativeDisposeMethod = nativeResult.dispose;
     let isDisposed = false;
-    result.dispose = () => {
+    const wrappedDisposeMethod = () => {
         return new Promise((resolve, reject) => {
             if (isDisposed) {
                 resolve();
@@ -55,7 +55,10 @@ export async function initAudioOutput(config, handler) {
             });
         });
     };
-    return result;
+    const wrappedResult = {
+        dispose: wrappedDisposeMethod
+    };
+    return wrappedResult;
 }
 async function getAudioOutputModuleForCurrentPlatform() {
     if (audioOutputModule) {

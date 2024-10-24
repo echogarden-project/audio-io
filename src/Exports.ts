@@ -51,13 +51,13 @@ export async function initAudioOutput(config: AudioOutputConfig, handler: AudioO
 		}
 	}
 
-	const result = await module.initAudioOutput(config, wrappedHandler)
+	const nativeResult = await module.initAudioOutput(config, wrappedHandler)
 
-	const nativeDisposeMethod = result.dispose
+	const nativeDisposeMethod = nativeResult.dispose
 
 	let isDisposed = false
 
-	result.dispose = () => {
+	const wrappedDisposeMethod = () => {
 		return new Promise<void>((resolve, reject) => {
 			if (isDisposed) {
 				resolve()
@@ -78,7 +78,11 @@ export async function initAudioOutput(config: AudioOutputConfig, handler: AudioO
 		})
 	}
 
-	return result
+	const wrappedResult: InitAudioOutputResult = {
+		dispose: wrappedDisposeMethod
+	}
+
+	return wrappedResult
 }
 
 async function getAudioOutputModuleForCurrentPlatform() {
@@ -124,11 +128,15 @@ export function isPlatformSupported() {
 }
 
 export interface AudioOutputAddon {
-	initAudioOutput(config: AudioOutputConfig, handler: AudioOutputHandler): Promise<InitAudioOutputResult>
+	initAudioOutput(config: AudioOutputConfig, handler: AudioOutputHandler): Promise<NativeInitAudioOutputResult>
+}
+
+export interface NativeInitAudioOutputResult {
+	dispose(): void
 }
 
 export interface InitAudioOutputResult {
-	dispose(): void
+	dispose(): Promise<void>
 }
 
 export type AudioOutputHandler = (outputBuffer: Int16Array) => void
