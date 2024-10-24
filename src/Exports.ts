@@ -127,14 +127,6 @@ export function isPlatformSupported() {
 	return false
 }
 
-export interface AudioOutputAddon {
-	initAudioOutput(config: AudioOutputConfig, handler: AudioOutputHandler): Promise<NativeInitAudioOutputResult>
-}
-
-export interface NativeInitAudioOutputResult {
-	dispose(): void
-}
-
 export interface InitAudioOutputResult {
 	dispose(): Promise<void>
 }
@@ -145,4 +137,12 @@ export interface AudioOutputConfig {
 	sampleRate: number
 	channelCount: number
 	bufferDuration?: number
+}
+
+interface AudioOutputAddon {
+	initAudioOutput(config: AudioOutputConfig, handler: AudioOutputHandler): Promise<NativeInitAudioOutputResult>
+}
+
+interface NativeInitAudioOutputResult {
+	dispose(): void
 }

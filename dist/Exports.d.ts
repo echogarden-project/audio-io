@@ -1,11 +1,5 @@
 export declare function initAudioOutput(config: AudioOutputConfig, handler: AudioOutputHandler): Promise<InitAudioOutputResult>;
 export declare function isPlatformSupported(): boolean;
-export interface AudioOutputAddon {
-    initAudioOutput(config: AudioOutputConfig, handler: AudioOutputHandler): Promise<NativeInitAudioOutputResult>;
-}
-export interface NativeInitAudioOutputResult {
-    dispose(): void;
-}
 export interface InitAudioOutputResult {
     dispose(): Promise<void>;
 }
