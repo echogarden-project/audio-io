@@ -30,15 +30,15 @@ import { initAudioOutput } from '@echogarden/audio-io'
 
 // Define an audio output handler function
 function audioOutputHandler(outputBuffer: Int16Array) {
-	// Write 16-bit signed integer little-endian samples to `outputBuffer`.
-	// If there are multiple channels, interleave them, like `LRLRLRLR..` for stereo.
+    // Write 16-bit signed integer little-endian samples to `outputBuffer`.
+    // If there are multiple channels, interleave them, like `LRLRLRLR..` for stereo.
 }
 
 // Initialize audio output, passing a configuration object and the handler
 const audioOutput = await initAudioOutput({
-	sampleRate: 44100, // Sample rate in Hz, should be an integer like 44100, 22050, 8000
-	channelCount: 2, // Channel count, likely 1 (mono), or 2 (stereo)
-	bufferDuration: 100.0, // Target buffer duration, in milliseconds. Defaults to 100.0
+    sampleRate: 44100, // Sample rate in Hz, should be an integer like 44100, 22050, 8000
+    channelCount: 2, // Channel count, likely 1 (mono), or 2 (stereo)
+    bufferDuration: 100.0, // Target buffer duration, in milliseconds. Defaults to 100.0
 }, audioOutputHandler)
 
 // ...
