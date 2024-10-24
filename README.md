@@ -38,7 +38,7 @@ function audioOutputHandler(outputBuffer: Int16Array) {
 const audioOutput = await initAudioOutput({
 	sampleRate: 44100, // Sample rate in Hz, should be an integer like 44100, 22050, 8000
 	channelCount: 2, // Channel count, likely 1 (mono), or 2 (stereo)
-	bufferDuration: 100.0, // Target buffer duration, in milliseconds (can be fractional). Defaults to 100.0
+	bufferDuration: 100.0, // Target buffer duration, in milliseconds. Defaults to 100.0
 }, audioOutputHandler)
 
 // ...
