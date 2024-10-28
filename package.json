@@ -1,6 +1,6 @@
 {
 	"name": "@echogarden/audio-io",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"description": "Provides low-level audio I/O via platform-specific APIs. Includes precompiled addons for all supported platforms.",
 	"author": "Rotem Dan",
 	"license": "MIT",
@@ -36,6 +36,7 @@
 		"addons/windows-mme",
 		"addons/macos-coreaudio",
 		"addons/linux-alsa",
+		"docs",
 		"README.md",
 		"LICENSE.md",
 		"tsconfig.json"

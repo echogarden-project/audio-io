@@ -51,7 +51,7 @@ void releaseWaveHeader(HWAVEOUT waveOutHandle, WAVEHDR* waveHeader) {
 }
 
 int isBufferDone(const WAVEHDR* waveHeader) {
-	return (*waveHeader).dwFlags & WHDR_DONE == 1;
+	return ((*waveHeader).dwFlags & WHDR_DONE) == 1;
 }
 
 void waitUntilBufferIsDone(const WAVEHDR* waveHeader) {

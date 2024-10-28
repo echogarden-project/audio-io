@@ -4,7 +4,7 @@ A Node.js package that provides low-level audio outputs (**audio inputs are not 
 
 * [MME (Multimedia Extensions)](https://en.wikipedia.org/wiki/Windows_legacy_audio_components) (Wave Out) on Windows x64
 * [Core Audio](https://en.wikipedia.org/wiki/Core_Audio) (via low-latency [Audio Units](https://en.wikipedia.org/wiki/Audio_Units)) on macOS for both Intel x64 and Apple Silicon (ARM64)
-* [ALSA (Advanced Linux Sound Architecture)](https://en.wikipedia.org/wiki/Advanced_Linux_Sound_Architecture) on Linux x64 and ARM64
+* [ALSA (Advanced Linux Sound Architecture)](https://en.wikipedia.org/wiki/Advanced_Linux_Sound_Architecture) on Linux for both x64 and ARM64
 
 The code is very minimalistic and doesn't rely on any external libraries, only direct system calls.
 
@@ -52,27 +52,11 @@ await audioOutput.dispose()
 * On MME (Windows) and ALSA (Linux) `bufferDuration` will be used to directly compute the buffer size
 * On Core Audio (macOS), it will be used to set the maximum buffer size, but the actual buffer size selected by the driver may be significantly smaller
 
-## Compiling the addons
+## Building the addons
 
-The library uses precompiled addons only.
+Pre-built addons are bundled for all supported platforms.
 
-If you want to compile yourself, for a modification or a fork, then:
-
-#### Compiling for Windows x64
-
-`addons/windows-mme` directory includes a `build.cmd` file that will build a `.node` addon using `g++` on Windows, as well as its `node_api.lib` prerequisite using `dlltool`.
-
-To install `g++` and `dlltool` and  you can use [`msys2`](https://www.msys2.org/).
-
-#### Compiling for macOS x64 and ARM64
-
-`addons/macos-coreaudio` directory includes a `build.sh` file that will build `.node` addons using `clang++` on macOS, for both `x86-64` and `arm64` targets.
-
-#### Compiling for Linux x64 and ARM64
-
-`addons/linux-alsa` directory includes a `build.sh` file that will build a `.node` addon using `g++` on Linux. Compilation requires the ALSA header files to be installed globally. On Ubuntu you can use `sudo apt install libasound2-dev`.
-
-To successfully cross-compile for ARM64, you'll need the `g++-aarch64-linux-gnu` package, and to manually download a `libasound2-dev` package targeting ARM64 ([example](https://launchpad.net/ubuntu/noble/arm64/libasound2-dev/1.2.11-1build2)) and extract the package locally to `~/arm64-libs` (the default location used in the build script - you'll need to edit the build script to change it).
+To rebuild them yourself, see [guide for building the addons](docs/Building.md).
 
 ## Still experimental, feedback is needed
 
