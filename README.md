@@ -4,7 +4,7 @@ A Node.js package that provides low-level audio outputs (**audio inputs are not 
 
 * [MME (Multimedia Extensions)](https://en.wikipedia.org/wiki/Windows_legacy_audio_components) (Wave Out) on Windows x64
 * [Core Audio](https://en.wikipedia.org/wiki/Core_Audio) (via low-latency [Audio Units](https://en.wikipedia.org/wiki/Audio_Units)) on macOS for both Intel x64 and Apple Silicon (ARM64)
-* [ALSA (Advanced Linux Sound Architecture)](https://en.wikipedia.org/wiki/Advanced_Linux_Sound_Architecture) on Linux x64
+* [ALSA (Advanced Linux Sound Architecture)](https://en.wikipedia.org/wiki/Advanced_Linux_Sound_Architecture) on Linux x64 and ARM64
 
 The code is very minimalistic and doesn't rely on any external libraries, only direct system calls.
 
@@ -22,7 +22,7 @@ npm install @echogarden/audio-io
 
 Notes:
 * Only audio outputs are supported at this time. Audio inputs will be added in the future
-* Only 16-bit, signed integer, little-endian, interleaved buffers are currently supported. Ensure the audio data is converted to this format before passing it to the handler
+* Only 16-bit, signed integer, little-endian, interleaved buffers are currently supported. Ensure the audio data is converted to this format before writing it to the handler's buffer
 
 ```ts
 // Import module
@@ -54,21 +54,33 @@ await audioOutput.dispose()
 
 ## Compiling the addons
 
-The library uses precompiled binaries only.
+The library uses precompiled addons only.
 
 If you want to compile yourself, for a modification or a fork, then:
 
-* `addons/windows-mme` directory includes a `build.cmd` file that will build a `.node` addon using `g++` on Windows, as well as its `node_api.lib` prerequisite
-* `addons/macos-coreaudio` directory includes a `build.sh` file that will build `.node` addons using `clang++` on macOS, for both `x86-64` and `arm64` targets
-* `addons/linux-alsa` directory includes a `build.sh` file that will build a `.node` addon using `g++` on Linux (requires the ALSA header files to be installed globally - on Ubuntu you can use `sudo apt install libasound2-dev`)
+#### Compiling for Windows x64
+
+`addons/windows-mme` directory includes a `build.cmd` file that will build a `.node` addon using `g++` on Windows, as well as its `node_api.lib` prerequisite using `dlltool`.
+
+To install `g++` and `dlltool` and  you can use [`msys2`](https://www.msys2.org/).
+
+#### Compiling for macOS x64 and ARM64
+
+`addons/macos-coreaudio` directory includes a `build.sh` file that will build `.node` addons using `clang++` on macOS, for both `x86-64` and `arm64` targets.
+
+#### Compiling for Linux x64 and ARM64
+
+`addons/linux-alsa` directory includes a `build.sh` file that will build a `.node` addon using `g++` on Linux. Compilation requires the ALSA header files to be installed globally. On Ubuntu you can use `sudo apt install libasound2-dev`.
+
+To successfully cross-compile for ARM64, you'll need the `g++-aarch64-linux-gnu` package, and to manually download a `libasound2-dev` package targeting ARM64 ([example](https://launchpad.net/ubuntu/noble/arm64/libasound2-dev/1.2.11-1build2)) and extract the package locally to `~/arm64-libs` (the default location used in the build script - you'll need to edit the build script to change it).
 
 ## Still experimental, feedback is needed
 
 All code was written from scratch, meaning it hasn't been tested on a large variety of systems yet:
 
 * Windows addon has only been tested on Windows 11
-* Linux addon has only been tested in WSL2 (Ubuntu 24.04) and an Ubuntu 23.10 VM in VirtualBox
-* macOS addon has only been tested in a macOS 13 VM in VMWare
+* Linux addon has only been tested in WSL2 (Ubuntu 24.04) and an Ubuntu 23.10 VM in VirtualBox (x64 only)
+* macOS addon has only been tested in a macOS 13 VM in VMWare (x64 only)
 
 If you encounter any crashes, unexpected errors, or audio problems, like distortions or artifacts, it's likely they can be solved relatively easily. Just open an issue and let me know about it.
 

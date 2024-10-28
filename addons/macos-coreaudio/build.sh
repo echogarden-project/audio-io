@@ -17,8 +17,8 @@ fi
 echo "Compiling for x86_64 architecture..."
 clang++ $INPUT_FILE -o $OUTPUT_FILE_X86_64 $COMMON_FLAGS -arch x86_64
 
-# Compile for arm64 architecture
-echo "Compiling for arm64 architecture..."
+# Compile for ARM64 architecture
+echo "Compiling for ARM64 architecture..."
 clang++ $INPUT_FILE -o $OUTPUT_FILE_ARM64 $COMMON_FLAGS -arch arm64
 
 echo "Compilation complete."

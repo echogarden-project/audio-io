@@ -1,6 +1,6 @@
 {
 	"name": "@echogarden/audio-io",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"description": "Provides low-level audio I/O via platform-specific APIs. Includes precompiled addons for all supported platforms.",
 	"author": "Rotem Dan",
 	"license": "MIT",

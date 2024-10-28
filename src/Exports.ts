@@ -101,6 +101,8 @@ async function getAudioOutputModuleForCurrentPlatform() {
 		audioOutputModule = createRequire(import.meta.url)('../addons/macos-coreaudio/macos-arm64-coreaudio-output.node')
 	} else if (platform === 'linux' && arch === 'x64') {
 		audioOutputModule = createRequire(import.meta.url)('../addons/linux-alsa/linux-x64-alsa-output.node')
+	} else if (platform === 'linux' && arch === 'arm64') {
+		audioOutputModule = createRequire(import.meta.url)('../addons/linux-alsa/linux-arm64-alsa-output.node')
 	} else {
 		throw new Error(`audio-io initialization error: unsupported platform ${platform}, ${arch}`);
 	}
@@ -120,7 +122,7 @@ export function isPlatformSupported() {
 		return true
 	}
 
-	if (platform === 'linux' && arch === 'x64') {
+	if (platform === 'linux' && (arch === 'x64' || arch === 'arm64')) {
 		return true
 	}
 
