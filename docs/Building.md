@@ -7,10 +7,10 @@ If you still want to compile yourself, for a modification or a fork, use these i
 ## Windows x64
 
 * Install Visual Studio 2022 build tools
-* Install [`msys2`](https://www.msys2.org/) and its x64 `clang` and `binutils` packages (`pacman -S mingw-w64-x86_64-clang mingw-w64-x86_64-binutils`)
+* Install [`msys2`](https://www.msys2.org/) and its x64 `binutils` package (`pacman -S mingw-w64-x86_64-binutils`)
 * Ensure you have `C:\msys64\mingw64\bin` in path
-* Use `Developer Command Prompt for VS 2022` to ensure VS2022 build tools are available in path
-* In `addons/windows-mme`, run `build.cmd`. It will build a `.node` addon using `clang++`, as well as its `node_api.lib` dependency using `dlltool`
+* Use `x64 Native Tools Command Prompt for VS 2022` to ensure x64 VS2022 build tools are available in path
+* In `addons/windows-mme`, run `build.cmd`. It will build a `.node` addon using `cl.exe` (MSVC), as well as its `node_api.lib` dependency using `dlltool`
 
 ## macOS x64 and ARM64
 
