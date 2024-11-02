@@ -94,15 +94,15 @@ async function getAudioOutputModuleForCurrentPlatform() {
 	const arch = process.arch
 
 	if (platform === 'win32' && arch === 'x64') {
-		audioOutputModule = createRequire(import.meta.url)('../addons/windows-mme/windows-x64-mme-output.node')
+		audioOutputModule = createRequire(import.meta.url)('../addons/bin/windows-x64-mme-output.node')
 	} else if (platform === 'darwin' && arch === 'x64') {
-		audioOutputModule = createRequire(import.meta.url)('../addons/macos-coreaudio/macos-x64-coreaudio-output.node')
+		audioOutputModule = createRequire(import.meta.url)('../addons/bin/macos-x64-coreaudio-output.node')
 	} else if (platform === 'darwin' && arch === 'arm64') {
-		audioOutputModule = createRequire(import.meta.url)('../addons/macos-coreaudio/macos-arm64-coreaudio-output.node')
+		audioOutputModule = createRequire(import.meta.url)('../addons/bin/macos-arm64-coreaudio-output.node')
 	} else if (platform === 'linux' && arch === 'x64') {
-		audioOutputModule = createRequire(import.meta.url)('../addons/linux-alsa/linux-x64-alsa-output.node')
+		audioOutputModule = createRequire(import.meta.url)('../addons/bin/linux-x64-alsa-output.node')
 	} else if (platform === 'linux' && arch === 'arm64') {
-		audioOutputModule = createRequire(import.meta.url)('../addons/linux-alsa/linux-arm64-alsa-output.node')
+		audioOutputModule = createRequire(import.meta.url)('../addons/bin/linux-arm64-alsa-output.node')
 	} else {
 		throw new Error(`audio-io initialization error: unsupported platform ${platform}, ${arch}`);
 	}

@@ -3,14 +3,14 @@
 A Node.js package that provides low-level audio outputs (**audio inputs are not implemented yet**) for common audio APIs, on various platforms:
 
 * [MME (Multimedia Extensions)](https://en.wikipedia.org/wiki/Windows_legacy_audio_components) (Wave Out) on Windows x64
-* [Core Audio](https://en.wikipedia.org/wiki/Core_Audio) (via low-latency [Audio Units](https://en.wikipedia.org/wiki/Audio_Units)) on macOS for both Intel x64 and Apple Silicon (ARM64)
-* [ALSA (Advanced Linux Sound Architecture)](https://en.wikipedia.org/wiki/Advanced_Linux_Sound_Architecture) on Linux for both x64 and ARM64
+* [Core Audio](https://en.wikipedia.org/wiki/Core_Audio) (via low-latency [Audio Units](https://en.wikipedia.org/wiki/Audio_Units)) on macOS for both Intel x64 and Apple Silicon (arm64)
+* [ALSA (Advanced Linux Sound Architecture)](https://en.wikipedia.org/wiki/Advanced_Linux_Sound_Architecture) on Linux for both x64 and arm64
 
 The code is very minimalistic and doesn't rely on any external libraries, only direct system calls.
 
 For each platform, there's a single, independent `cpp` source file, which uses the Node Addon API (C++) to produce a Node.js addon that integrates with the Node.js runtime for the given platform.
 
-The addons are distributed as **precompiled binaries only**, which means the package doesn't require any build tools or build-time postprocessing to install. It also does **not** rely on `node-gyp` or any other form of intermediate build tools, like MAKE or CMAKE.
+The addons are distributed as **precompiled binaries only**, which means the package doesn't require any build tools or build-time postprocessing to install.
 
 ## Installation
 

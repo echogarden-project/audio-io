@@ -1,6 +1,6 @@
 {
 	"name": "@echogarden/audio-io",
-	"version": "0.0.7",
+	"version": "0.1.0",
 	"description": "Provides low-level audio I/O via platform-specific APIs. Includes precompiled addons for all supported platforms.",
 	"author": "Rotem Dan",
 	"license": "MIT",
@@ -47,8 +47,6 @@
 	"dependencies": {
 	},
 	"devDependencies": {
-		"node-addon-api": "^8.2.1",
-		"node-api-headers": "^1.4.0",
 		"@types/node": "^22.8.6"
 	}
 }

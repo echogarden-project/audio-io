@@ -1,0 +1,23 @@
+{
+	"name": "@echogarden/audio-io-addons",
+	"description": "N-API addons for the Echogarden Audio I/O package",
+	"version": "0.1.0",
+	"main": "",
+	"publishConfig": {
+		"access": "restricted"
+	},
+	"scripts": {
+		"build-windows-x64": "node-gyp rebuild --verbose && xcopy /Y build\\Release\\*.node .\\bin",
+		"build-linux-x64": "node-gyp rebuild -arch x64 --verbose && cp build/Release/*.node ./bin",
+		"build-linux-arm64": "CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ node-gyp rebuild -arch arm64 --verbose && cp build/Release/*.node ./bin",
+		"build-macos-x64": "node-gyp rebuild -arch x64 --verbose && cp build/Release/*.node ./bin",
+		"build-macos-arm64": "node-gyp rebuild -arch arm64 --verbose && cp build/Release/*.node ./bin"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"node-gyp": "^10.2.0",
+		"node-addon-api": "^8.2.1"
+	},
+	"author": "Rotem Dan",
+	"license": "MIT"
+}
