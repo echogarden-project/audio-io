@@ -7,7 +7,6 @@ If you still want to compile yourself, for a modification or a fork, use these i
 ## Windows x64
 
 * Install Visual Studio 2022 build tools
-* Use `x64 Native Tools Command Prompt for VS 2022` to ensure x64 VS2022 build tools are available in path
 * In `addons`, run `npm install` and then `npm run build-windows-x64`
 
 ## macOS x64 and arm64
