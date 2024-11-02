@@ -33,9 +33,7 @@
 	"files": [
 		"src",
 		"dist",
-		"addons/windows-mme",
-		"addons/macos-coreaudio",
-		"addons/linux-alsa",
+		"addons/bin",
 		"docs",
 		"README.md",
 		"LICENSE.md",
