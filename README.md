@@ -10,7 +10,7 @@ The code is very minimalistic and doesn't rely on any external libraries, only d
 
 For each platform, there's a single, independent `cpp` source file, which uses the Node Addon API (C++) to produce a Node.js addon that integrates with the Node.js runtime for the given platform.
 
-The addons are distributed as **precompiled binaries only**, which means the package doesn't require any build tools or build-time postprocessing to install.
+The addons are distributed as **precompiled binaries only**, which means the package doesn't require any build-time postprocessing to install.
 
 ## Installation
 
