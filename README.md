@@ -60,7 +60,7 @@ Play signed, 16-bit interleaved, PCM audio samples, given as an `Int16Array`:
 // Import module
 import { playAudioSamples } from '@echogarden/audio-io'
 
-await playAudioSamples(pcmAudioSamples, 44100, 2, 150) // 48000 Hz, 2 channels, 150ms buffer duration,
+await playAudioSamples(pcmAudioSamples, 44100, 2, 150) // 44100 Hz, 2 channels, 150ms buffer duration,
 ```
 
 Play a stereo test tone (sine wave), to test the audio output:
