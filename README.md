@@ -52,15 +52,24 @@ await audioOutput.dispose()
 * On MME (Windows) and ALSA (Linux) `bufferDuration` will be used to directly compute the buffer size
 * On Core Audio (macOS), it will be used to set the maximum buffer size, but the actual buffer size selected by the driver may be significantly smaller
 
-## Quickly testing if audio output is functioning properly
+## Utility methods
 
-To test audio output, you can play a stereo test tone:
+Play signed, 16-bit interleaved, PCM audio samples, given as an `Int16Array`:
+
+```ts
+// Import module
+import { playAudioSamples } from '@echogarden/audio-io'
+
+await playAudioSamples(pcmAudioSamples, 44100, 2, 150) // 48000 Hz, 2 channels, 150ms buffer duration,
+```
+
+Play a stereo test tone (sine wave), to test the audio output:
 
 ```ts
 // Import module
 import { playTestTone } from '@echogarden/audio-io'
 
-await playTestTone(1, 100, 48000) // 1 second, 100ms buffer duration, 48000 Hz
+await playTestTone(1, 48000, 100) // 1 second, 48000 Hz, 100ms buffer duration.
 ```
 
 ## Building the addons
