@@ -12,19 +12,25 @@ export async function playTestTone(totalDuration = 1, sampleRate = 48000, buffer
 	await playAudioSamples(pcmSamples, sampleRate, channelCount, bufferDuration)
 }
 
-export async function playAudioSamples(pcmSamples: Int16Array, sampleRate: number, channelCount: number, bufferDuration = 100) {
+export async function playAudioSamples(pcmSamples: Int16Array, sampleRate: number, channelCount: number, bufferDuration = 100): Promise<void> {
 	const openPromise = new OpenPromise()
 
 	if (!pcmSamples || !(pcmSamples instanceof Int16Array)) {
-		throw new Error(`pcmSamples were not provided or not an Int16Array`)
+		openPromise.reject(`pcmSamples were not provided or not an Int16Array`)
+
+		return openPromise.promise
 	}
 
 	if (typeof sampleRate !== 'number') {
-		throw new Error(`sampleRate was not provided or not a number`)
+		openPromise.reject(`sampleRate was not provided or not a number`)
+
+		return openPromise.promise
 	}
 
 	if (typeof channelCount !== 'number') {
-		throw new Error(`channelCount was not provided or not a number`)
+		openPromise.reject(`channelCount was not provided or not a number`)
+
+		return openPromise.promise
 	}
 
 	let ended = false
@@ -46,7 +52,9 @@ export async function playAudioSamples(pcmSamples: Int16Array, sampleRate: numbe
 			ended = true
 
 			if (!disposeAudioOutput) {
-				throw new Error(`No dispose method set`);
+				openPromise.reject(`No audio output dispose method set`)
+
+				return
 			}
 
 			disposeAudioOutput()
@@ -59,7 +67,7 @@ export async function playAudioSamples(pcmSamples: Int16Array, sampleRate: numbe
 	const NodeAudioOutput = await import('./Exports.js')
 
 	if (!NodeAudioOutput.isPlatformSupported()) {
-		throw new Error(`Platform is not supported`)
+		openPromise.reject(`Platform is not supported`)
 	}
 
 	try {
