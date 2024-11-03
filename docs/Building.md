@@ -1,6 +1,6 @@
 # Building the N-API addons
 
-The library uses pre-build addons only, no recompilation should be needed.
+The library uses pre-built addons only, no recompilation should be needed.
 
 If you still want to compile yourself, for a modification or a fork, use these instructions.
 
@@ -22,5 +22,5 @@ If you still want to compile yourself, for a modification or a fork, use these i
 
 To successfully cross-compile for arm64:
 * Install `g++-aarch64-linux-gnu` package
-* Manually download a `libasound2-dev` package targeting arm64 ([example](https://launchpad.net/ubuntu/noble/arm64/libasound2-dev/1.2.11-1build2)) and extract the package locally to `~/arm64-libs` (that's the default location used in the build script - you'll need to edit the build script to change it)
+* Manually download a `libasound2-dev` package targeting arm64 ([example Ubuntu package](https://launchpad.net/ubuntu/noble/arm64/libasound2-dev/1.2.11-1build2)) and extract the package locally to `~/arm64-libs` (that's the default location used in `addons/binding.gyp` - you'll need to edit the file to change it)
 * In `addons`, run `npm install` and then `npm run build-linux-arm64`

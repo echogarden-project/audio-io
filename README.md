@@ -26,7 +26,7 @@ Notes:
 
 ```ts
 // Import module
-import { initAudioOutput } from '@echogarden/audio-io'
+import { createAudioOutput } from '@echogarden/audio-io'
 
 // Define an audio output handler function
 function audioOutputHandler(outputBuffer: Int16Array) {
@@ -34,8 +34,8 @@ function audioOutputHandler(outputBuffer: Int16Array) {
     // If there are multiple channels, interleave them, like `LRLRLRLR..` for stereo.
 }
 
-// Initialize audio output, passing a configuration object and the handler
-const audioOutput = await initAudioOutput({
+// Create audio output, passing a configuration object and the handler
+const audioOutput = await createAudioOutput({
     sampleRate: 44100, // Sample rate in Hz, should be an integer like 44100, 22050, 8000
     channelCount: 2, // Channel count, likely 1 (mono), or 2 (stereo)
     bufferDuration: 100.0, // Target buffer duration, in milliseconds. Defaults to 100.0
@@ -51,6 +51,17 @@ await audioOutput.dispose()
 **Notes on `bufferDuration`**:
 * On MME (Windows) and ALSA (Linux) `bufferDuration` will be used to directly compute the buffer size
 * On Core Audio (macOS), it will be used to set the maximum buffer size, but the actual buffer size selected by the driver may be significantly smaller
+
+## Quickly testing if audio output is functioning properly
+
+To test audio output, you can play a stereo test tone:
+
+```ts
+// Import module
+import { playTestTone } from '@echogarden/audio-io'
+
+await playTestTone(1, 100, 48000) // 1 second, 100ms buffer duration, 48000 Hz
+```
 
 ## Building the addons
 
