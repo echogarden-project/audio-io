@@ -88,7 +88,7 @@ export async function createAudioOutput(config: AudioOutputConfig, handler: Audi
 		})
 	}
 
-	const wrappedResult: CreateAudioOutputResult = {
+	const wrappedResult: AudioOutput = {
 		dispose: wrappedDisposeMethod
 	}
 
@@ -139,7 +139,7 @@ export function isPlatformSupported() {
 	return false
 }
 
-export interface CreateAudioOutputResult {
+export interface AudioOutput {
 	dispose(): Promise<void>
 }
 
@@ -152,9 +152,9 @@ export interface AudioOutputConfig {
 }
 
 interface AudioOutputAddon {
-	createAudioOutput(config: AudioOutputConfig, handler: AudioOutputHandler): Promise<NativeCreateAudioOutputResult>
+	createAudioOutput(config: AudioOutputConfig, handler: AudioOutputHandler): Promise<NativeAudioOutput>
 }
 
-interface NativeCreateAudioOutputResult {
+interface NativeAudioOutput {
 	dispose(): void
 }
