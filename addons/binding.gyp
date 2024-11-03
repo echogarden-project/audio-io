@@ -9,6 +9,7 @@
 			"defines": ["NAPI_CPP_EXCEPTIONS"],
 			"cflags!": ["-fno-exceptions"],
 			"cflags_cc!": ["-fno-exceptions"],
+			# "defines": ["TRACE"]
 			"conditions": [
 				[
 					"OS=='win'",

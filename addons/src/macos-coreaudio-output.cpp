@@ -10,9 +10,12 @@
 #include "../include/Utils.h"
 
 class NodeAudioOutput {
-public:
+private:
 	AudioUnit audioUnit;
 	Napi::ThreadSafeFunction threadSafeCallbackWrapper = Napi::ThreadSafeFunction();
+
+public:
+	Napi::Reference<Napi::Int16Array> interleavedBuffer;
 
 	Napi::Promise Initialize(const Napi::CallbackInfo& info) {
 		auto env = info.Env();
@@ -192,6 +195,9 @@ public:
 
 		trace("Initialized Audio Unit\n");
 
+		// Initialize interleaved buffer, sized to twice the maximum buffer size
+		interleavedBuffer = Napi::Persistent(Napi::Int16Array::New(env, requestedBufferFrameCount * 2));
+
 		// Initialize JavaScript callback wrapper
 		this->threadSafeCallbackWrapper = Napi::ThreadSafeFunction::New(env, userCallback, "threadSafeCallbackWrapper", 1, 1);
 
@@ -244,26 +250,28 @@ public:
 			auto channelCount = ioData->mNumberBuffers;
 			auto buffers = ioData->mBuffers;
 
-			// Create interleaved buffer
-			auto interleavedBufferLength = frameCount * channelCount;
-			int16_t interleavedBuffer[interleavedBufferLength];
-			std::memset(interleavedBuffer, 0, interleavedBufferLength * sizeof(int16_t));
+			// Get interleaved buffer from instance
+			auto interleavedBuffer = instance->interleavedBuffer.Value();
 
-			// Create a typed array that wraps the interleaved buffer
-			auto arrayBuffer = Napi::ArrayBuffer::New(env, interleavedBuffer, interleavedBufferLength * sizeof(int16_t));
-			auto typedArrayForBuffer = Napi::Int16Array::New(env, interleavedBufferLength, arrayBuffer, 0);
+			// Create a subbarray of the interleaved buffer
+			auto interleavedBufferSubarrayLength = frameCount * channelCount;
+			auto interleavedBufferSubarray = Napi::Int16Array::New(env, interleavedBufferSubarrayLength, interleavedBuffer.ArrayBuffer(), 0);
+			auto interleavedBufferSubarrayData = interleavedBuffer.Data();
 
-			// Call back to JavaScript to have the interleaved buffer filled with samples
-			jsCallback.Call({ typedArrayForBuffer });
+			// Set interleaved buffer to all 0s (silence)
+			std::memset((void*)interleavedBufferSubarrayData, 0, interleavedBufferSubarray.ByteLength());
 
-			// Deinterleave the updated interleaved buffer into the callback buffers
+			// Call back to JavaScript to have the interleaved buffer subarray filled with samples
+			jsCallback.Call({ interleavedBufferSubarray });
+
+			// Deinterleave the updated interleaved buffer into the provided callback buffers
 			auto readIndex = 0;
 
 			for (auto frameIndex = 0; frameIndex < frameCount; frameIndex++) {
 				for (auto channelIndex = 0; channelIndex < channelCount; channelIndex++) {
 					auto buffer = static_cast<int16_t*>(buffers[channelIndex].mData);
 
-					buffer[frameIndex] = interleavedBuffer[readIndex++];
+					buffer[frameIndex] = interleavedBufferSubarrayData[readIndex++];
 				}
 			}
 
@@ -286,6 +294,9 @@ public:
 		// Release callback wrapper
 		this->threadSafeCallbackWrapper.Release();
 
+		// Allow the garbage collector to free the interleaved buffer
+		interleavedBuffer.Unref();
+
 		trace("Audio Unit instance disposed\n");
 
 		// Delete object
@@ -293,7 +304,7 @@ public:
 	}
 };
 
-Napi::Promise InitializeAudioOutput(const Napi::CallbackInfo& info) {
+Napi::Promise createAudioOutput(const Napi::CallbackInfo& info) {
 	auto env = info.Env();
 
 	auto output = new NodeAudioOutput();
@@ -302,7 +313,7 @@ Napi::Promise InitializeAudioOutput(const Napi::CallbackInfo& info) {
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-	exports.Set(Napi::String::New(env, "initAudioOutput"), Napi::Function::New(env, InitializeAudioOutput));
+	exports.Set(Napi::String::New(env, "createAudioOutput"), Napi::Function::New(env, createAudioOutput));
 
 	return exports;
 }

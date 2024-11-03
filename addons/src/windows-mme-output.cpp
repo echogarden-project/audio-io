@@ -74,10 +74,14 @@ int getSamplePosition(HWAVEOUT waveOutHandle) {
 }
 
 class NodeAudioOutput {
-public:
+private:
 	Napi::ThreadSafeFunction threadSafeCallbackWrapper = Napi::ThreadSafeFunction();
 	bool disposeRequested = false;
 
+	std::vector<Napi::Reference<Napi::Int16Array>> outputBuffers;
+	std::vector<WAVEHDR> bufferHeaders;
+
+public:
 	Napi::Promise Initialize(const Napi::CallbackInfo& info) {
 		auto env = info.Env();
 
@@ -114,19 +118,18 @@ public:
 			return initializationPromise;
 		}
 
-		// Allocate buffers
-		int16_t* buffers[2];
-		WAVEHDR* bufferHeaders[2];
-
 		for (int i = 0; i < 2; i++) {
-			buffers[i] = new int16_t[bufferSampleCount];
-			bufferHeaders[i] = new WAVEHDR();
+			auto napiBuffer = Napi::Int16Array::New(env, bufferSampleCount);
+			auto napiBufferReference = Napi::Persistent(napiBuffer);
+
+			outputBuffers.push_back(std::move(napiBufferReference));
+			bufferHeaders.push_back(WAVEHDR());
 		}
 
 		// Initialize headers for buffers
 		for (int i = 0; i < 2; i++) {
 			// Initialize header
-			auto status = initializeWaveHeader(waveOutHandle, bufferHeaders[i], buffers[i], 0, sizeof(int16_t));
+			auto status = initializeWaveHeader(waveOutHandle, &bufferHeaders[i], outputBuffers[i].Value().Data(), 0, sizeof(int16_t));
 
 			if (status != 0) {
 				initializationPromiseDeferred.Reject(Napi::Error::New(env, "Failed to initialize wave header").Value());
@@ -136,17 +139,11 @@ public:
 
 				disposeWaveOutHandle(waveOutHandle);
 
-				delete[] buffers[0];
-				delete[] buffers[1];
-
-				delete bufferHeaders[0];
-				delete bufferHeaders[1];
-
 				return initializationPromise;
 			}
 
 			// Set it to done
-			(*bufferHeaders[i]).dwFlags |= WHDR_DONE;
+			bufferHeaders[i].dwFlags |= WHDR_DONE;
 		}
 
 		// Initialize JavaScript callback wrapper
@@ -163,33 +160,35 @@ public:
 				// Wait until the current buffer is done
 				trace("Waiting until current MME buffer is done playing..\n");
 
-				waitUntilBufferIsDone(bufferHeaders[currentBufferIndex]);
+				waitUntilBufferIsDone(&bufferHeaders[currentBufferIndex]);
 
 				trace("Iteration start\n");
 
 				// Call back into JavaScript to let the user write to the buffer
 				auto blockingCallStatus = this->threadSafeCallbackWrapper.BlockingCall([&](Napi::Env env, Napi::Function jsCallback) {
+					trace("Blocking call start\n");
+
 					// Get current buffer
-					auto currentBuffer = buffers[currentBufferIndex];
+					auto currentNapiBuffer = outputBuffers[currentBufferIndex].Value();
 
-					// Ensure current buffer is set to all 0s (silence)
-					std::memset(currentBuffer, 0, bufferSampleCount * sizeof(int16_t));
-
-					// Create a typed array that wraps the current buffer
-					auto arrayBuffer = Napi::ArrayBuffer::New(env, buffers[currentBufferIndex], bufferSampleCount * sizeof(int16_t));
-					auto typedArrayForBuffer = Napi::Int16Array::New(env, bufferSampleCount, arrayBuffer, 0);
+					// Set current buffer to all 0s (silence)
+					std::memset((void*)currentNapiBuffer.Data(), 0, currentNapiBuffer.ByteLength());
 
 					// Get header for current buffer
-					auto currentBufferHeader = bufferHeaders[currentBufferIndex];
+					auto currentBufferHeader = &bufferHeaders[currentBufferIndex];
 
 					// Reinitialize the header with current buffer
 					releaseWaveHeader(waveOutHandle, currentBufferHeader);
 
+					trace("Before JavaScript callback\n");
+
 					// Call back to JavaScript to have the buffer filled with samples
-					jsCallback.Call({ typedArrayForBuffer });
+					jsCallback.Call({ currentNapiBuffer });
+
+					trace("After JavaScript callback\n");
 
 					// Initialize wave header
-					auto initResult = initializeWaveHeader(waveOutHandle, currentBufferHeader, currentBuffer, bufferSampleCount, sizeof(int16_t));
+					auto initResult = initializeWaveHeader(waveOutHandle, currentBufferHeader, currentNapiBuffer.Data(), bufferSampleCount, sizeof(int16_t));
 
 					if (initResult != 0) {
 						Napi::Error::New(env, "Failed to initialize wave header").ThrowAsJavaScriptException();
@@ -225,24 +224,21 @@ public:
 
 			// Wait for buffers to complete playback and release them
 			for (int i = 0; i < 2; i++) {
-				waitUntilBufferIsDone(bufferHeaders[i]);
-				releaseWaveHeader(waveOutHandle, bufferHeaders[i]);
+				waitUntilBufferIsDone(&bufferHeaders[i]);
+				releaseWaveHeader(waveOutHandle, &bufferHeaders[i]);
+
+				// Decrement reference count to allow the garbage collector to free
+				// the Int16Array and its underlying memory
+				outputBuffers[i].Unref();
 			}
 
 			// Dispose wave out handle
 			disposeWaveOutHandle(waveOutHandle);
 
-			// Free buffers
-			delete[] buffers[0];
-			delete[] buffers[1];
-
-			delete bufferHeaders[0];
-			delete bufferHeaders[1];
-
 			// Release callback wrapper
 			this->threadSafeCallbackWrapper.Release();
 
-			// Delete object
+			// Delete NodeAudioOutput object
 			delete this;
 
 			trace("MME output disposed\n");
@@ -270,7 +266,7 @@ public:
 	}
 };
 
-Napi::Promise InitializeAudioOutput(const Napi::CallbackInfo& info) {
+Napi::Promise createAudioOutput(const Napi::CallbackInfo& info) {
 	auto env = info.Env();
 
 	auto output = new NodeAudioOutput();
@@ -279,7 +275,7 @@ Napi::Promise InitializeAudioOutput(const Napi::CallbackInfo& info) {
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-	exports.Set(Napi::String::New(env, "initAudioOutput"), Napi::Function::New(env, InitializeAudioOutput));
+	exports.Set(Napi::String::New(env, "createAudioOutput"), Napi::Function::New(env, createAudioOutput));
 
 	return exports;
 }

@@ -7,17 +7,19 @@
 #include <thread>
 #include <chrono>
 
-#include "../include/Signal.h"
-#include "../include/Utils.h"
-
 #include <alsa/asoundlib.h>
 #include <napi.h>
 
+#include "../include/Signal.h"
+#include "../include/Utils.h"
+
 class NodeAudioOutput {
-public:
+private:
 	Napi::ThreadSafeFunction threadSafeCallbackWrapper = Napi::ThreadSafeFunction();
 	bool disposeRequested = false;
+	std::vector<Napi::Reference<Napi::Int16Array>> outputBuffers;
 
+public:
 	Napi::Promise Initialize(const Napi::CallbackInfo& info) {
 		auto env = info.Env();
 
@@ -145,16 +147,16 @@ public:
 
 		trace("ALSA buffer frame count: %d, ALSA period frame count: %d\n", alsaBufferFrameCount, alsaPeriodFrameCount);
 
+		// Initialize Int16Array buffers
+		for (int i = 0; i < 2; i++) {
+			auto napiBuffer = Napi::Int16Array::New(env, bufferSampleCount);
+			auto napiBufferReference = Napi::Persistent(napiBuffer);
+
+			outputBuffers.push_back(std::move(napiBufferReference));
+		}
+
 		// Start a new thread for the output loop
 		std::thread([=]() {
-			int16_t* buffers[2];
-
-			// Initialize buffers
-			for (int i = 0; i < 2; i++) {
-				buffers[i] = new int16_t[bufferSampleCount];
-			}
-
-			///
 			auto waitUntilALSABufferIsSufficientlyDrained = [&](int targetRemainingFrameCount) -> int {
 				while (true) {
 					// Get available frame count in ALSA buffer, andd ALSA I/O latency (in frames)
@@ -221,20 +223,16 @@ public:
 				// Call back into JavaScript to let the user write to the buffer
 				auto status = this->threadSafeCallbackWrapper.BlockingCall([&](Napi::Env env, Napi::Function jsCallback) {
 					// Get current buffer
-					auto currentBuffer = buffers[currentBufferIndex];
+					auto currentBuffer = outputBuffers[currentBufferIndex].Value();
 
-					// Ensure current buffer is set to all 0s (silence)
-					std::memset(currentBuffer, 0, bufferSampleCount * sizeof(int16_t));
-
-					// Create a typed array that wraps the current buffer
-					auto arrayBuffer = Napi::ArrayBuffer::New(env, buffers[currentBufferIndex], bufferSampleCount * sizeof(int16_t));
-					auto typedArrayForBuffer = Napi::Int16Array::New(env, bufferSampleCount, arrayBuffer, 0);
+					// Set current buffer to all 0s (silence)
+					std::memset((void*)currentBuffer.Data(), 0, currentBuffer.ByteLength());
 
 					// Call back to JavaScript to have the buffer filled with samples
-					jsCallback.Call({ typedArrayForBuffer });
+					jsCallback.Call({ currentBuffer });
 
 					// Write buffer to ALSA output
-					auto writeResult = snd_pcm_writei(pcmHandle, currentBuffer, bufferFrameCount);
+					auto writeResult = snd_pcm_writei(pcmHandle, currentBuffer.Data(), bufferFrameCount);
 
 					// Detect buffer underruns and try to recover
 					if (writeResult == -EPIPE) {
@@ -253,7 +251,7 @@ public:
 
 						trace("Buffer underrun recovered\n");
 
-						writeResult = snd_pcm_writei(pcmHandle, currentBuffer, bufferFrameCount);
+						writeResult = snd_pcm_writei(pcmHandle, currentBuffer.Data(), bufferFrameCount);
 					}
 
 					if (writeResult < 0) {
@@ -297,11 +295,11 @@ public:
 			// Release callback wrapper
 			this->threadSafeCallbackWrapper.Release();
 
-			// Free buffers
-			delete[] buffers[0];
-			delete[] buffers[1];
+			for (int i = 0; i < 2; i++) {
+				outputBuffers[i].Unref();
+			}
 
-			// Delete object
+			// Delete NodeAudioOutput object
 			delete this;
 		}).detach();
 
@@ -327,7 +325,7 @@ public:
 	}
 };
 
-Napi::Promise InitializeAudioOutput(const Napi::CallbackInfo& info) {
+Napi::Promise createAudioOutput(const Napi::CallbackInfo& info) {
 	auto env = info.Env();
 
 	auto output = new NodeAudioOutput();
@@ -336,7 +334,7 @@ Napi::Promise InitializeAudioOutput(const Napi::CallbackInfo& info) {
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-	exports.Set(Napi::String::New(env, "initAudioOutput"), Napi::Function::New(env, InitializeAudioOutput));
+	exports.Set(Napi::String::New(env, "createAudioOutput"), Napi::Function::New(env, createAudioOutput));
 
 	return exports;
 }
