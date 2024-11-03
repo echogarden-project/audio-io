@@ -1,15 +1,7 @@
 import { float32ToInt16Pcm, getSineWave, interleaveChannels } from './AudioUtilities.js'
 import { OpenPromise } from './OpenPromise.js'
 
-export async function playTestTone(totalDuration = 1, bufferDuration = 100, sampleRate = 48000, trace = false) {
-	const openPromise = new OpenPromise()
-
-	let log = (arg: any) => {}
-
-	if (trace) {
-		log = console.log
-	}
-
+export async function playTestTone(totalDuration = 1, sampleRate = 48000, bufferDuration = 100) {
 	const channelCount = 2 as number
 
 	const testToneLeft = getSineWave(440, sampleRate * totalDuration, sampleRate)
@@ -17,12 +9,30 @@ export async function playTestTone(totalDuration = 1, bufferDuration = 100, samp
 	const interleavedChannels = channelCount === 1 ? testToneLeft : interleaveChannels([testToneLeft, testToneRight])
 	const pcmSamples = float32ToInt16Pcm(interleavedChannels)
 
-	let offset = 0
+	await playAudioSamples(pcmSamples, sampleRate, channelCount, bufferDuration)
+}
+
+export async function playAudioSamples(pcmSamples: Int16Array, sampleRate: number, channelCount: number, bufferDuration = 100) {
+	const openPromise = new OpenPromise()
+
+	if (!pcmSamples || !(pcmSamples instanceof Int16Array)) {
+		throw new Error(`pcmSamples were not provided or not an Int16Array`)
+	}
+
+	if (typeof sampleRate !== 'number') {
+		throw new Error(`sampleRate was not provided or not a number`)
+	}
+
+	if (typeof channelCount !== 'number') {
+		throw new Error(`channelCount was not provided or not a number`)
+	}
+
 	let ended = false
+	let offset = 0
 
 	let disposeAudioOutput: Function
 
-	function audioOutputCallback(outputBuffer: Int16Array) {
+	function audioOutputHandler(outputBuffer: Int16Array) {
 		if (ended) {
 			return
 		}
@@ -35,8 +45,6 @@ export async function playTestTone(totalDuration = 1, bufferDuration = 100, samp
 		if (samplesToOutput.length < sampleCount) {
 			ended = true
 
-			log(`JavaScript: output ended`)
-
 			if (!disposeAudioOutput) {
 				throw new Error(`No dispose method set`);
 			}
@@ -48,7 +56,6 @@ export async function playTestTone(totalDuration = 1, bufferDuration = 100, samp
 		offset += sampleCount
 	}
 
-	log("JavaScript: initializing")
 	const NodeAudioOutput = await import('./Exports.js')
 
 	if (!NodeAudioOutput.isPlatformSupported()) {
@@ -60,9 +67,8 @@ export async function playTestTone(totalDuration = 1, bufferDuration = 100, samp
 			sampleRate,
 			channelCount,
 			bufferDuration,
-		}, audioOutputCallback)
+		}, audioOutputHandler)
 
-		log("JavaScript: initialization promise resolved")
 		disposeAudioOutput = initResult.dispose
 	} catch (e) {
 		openPromise.reject(e)

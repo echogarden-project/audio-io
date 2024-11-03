@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module'
 
-export { playTestTone } from './TestTone.js'
+export { playAudioSamples, playTestTone } from './Player.js'
 
 let audioOutputModule: AudioOutputAddon | undefined
 

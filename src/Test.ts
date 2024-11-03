@@ -1,3 +1,3 @@
-import { playTestTone } from "./TestTone.js";
+import { playTestTone } from './Player.js'
 
 await playTestTone()
