@@ -60,6 +60,8 @@ Play signed, 16-bit interleaved, PCM audio samples, given as an `Int16Array`:
 // Import module
 import { playAudioSamples } from '@echogarden/audio-io'
 
+const pcmAudioSamples = //... acquire audio samples
+
 await playAudioSamples(pcmAudioSamples, 44100, 2, 150) // 44100 Hz, 2 channels, 150ms buffer duration,
 ```
 
