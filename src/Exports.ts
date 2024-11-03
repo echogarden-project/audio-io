@@ -1,8 +1,18 @@
 import { createRequire } from 'node:module'
 
+export { playTestTone } from './TestTone.js'
+
 let audioOutputModule: AudioOutputAddon | undefined
 
-export async function initAudioOutput(config: AudioOutputConfig, handler: AudioOutputHandler) {
+export async function createAudioOutput(config: AudioOutputConfig, handler: AudioOutputHandler) {
+	if (typeof config !== 'object') {
+		throw new Error(`No valid configuration object provided`)
+	}
+
+	if (typeof handler !== 'function') {
+		throw new Error(`No valid handler function provided`)
+	}
+
 	config = { ...config }
 
 	const module = await getAudioOutputModuleForCurrentPlatform()
@@ -51,7 +61,7 @@ export async function initAudioOutput(config: AudioOutputConfig, handler: AudioO
 		}
 	}
 
-	const nativeResult = await module.initAudioOutput(config, wrappedHandler)
+	const nativeResult = await module.createAudioOutput(config, wrappedHandler)
 
 	const nativeDisposeMethod = nativeResult.dispose
 
@@ -78,7 +88,7 @@ export async function initAudioOutput(config: AudioOutputConfig, handler: AudioO
 		})
 	}
 
-	const wrappedResult: InitAudioOutputResult = {
+	const wrappedResult: CreateAudioOutputResult = {
 		dispose: wrappedDisposeMethod
 	}
 
@@ -104,7 +114,7 @@ async function getAudioOutputModuleForCurrentPlatform() {
 	} else if (platform === 'linux' && arch === 'arm64') {
 		audioOutputModule = createRequire(import.meta.url)('../addons/bin/linux-arm64-alsa-output.node')
 	} else {
-		throw new Error(`audio-io initialization error: unsupported platform ${platform}, ${arch}`);
+		throw new Error(`audio-io initialization error: platform ${platform}, ${arch} is not supported`);
 	}
 
 	return audioOutputModule!
@@ -129,7 +139,7 @@ export function isPlatformSupported() {
 	return false
 }
 
-export interface InitAudioOutputResult {
+export interface CreateAudioOutputResult {
 	dispose(): Promise<void>
 }
 
@@ -142,9 +152,9 @@ export interface AudioOutputConfig {
 }
 
 interface AudioOutputAddon {
-	initAudioOutput(config: AudioOutputConfig, handler: AudioOutputHandler): Promise<NativeInitAudioOutputResult>
+	createAudioOutput(config: AudioOutputConfig, handler: AudioOutputHandler): Promise<NativeCreateAudioOutputResult>
 }
 
-interface NativeInitAudioOutputResult {
+interface NativeCreateAudioOutputResult {
 	dispose(): void
 }
