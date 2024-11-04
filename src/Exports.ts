@@ -1,8 +1,6 @@
-import { createRequire } from 'node:module'
-
 export { playAudioSamples, playTestTone } from './Player.js'
 
-let audioOutputModule: AudioOutputAddon | undefined
+let audioOutputAddon: AudioOutputAddon | undefined
 
 export async function createAudioOutput(config: AudioOutputConfig, handler: AudioOutputHandler) {
 	if (typeof config !== 'object') {
@@ -15,7 +13,7 @@ export async function createAudioOutput(config: AudioOutputConfig, handler: Audi
 
 	config = { ...config }
 
-	const module = await getAudioOutputModuleForCurrentPlatform()
+	const module = await getAudioOutputAddonForCurrentPlatform()
 
 	const sampleRate = config.sampleRate
 
@@ -95,29 +93,34 @@ export async function createAudioOutput(config: AudioOutputConfig, handler: Audi
 	return wrappedResult
 }
 
-async function getAudioOutputModuleForCurrentPlatform() {
-	if (audioOutputModule) {
-		return audioOutputModule
+async function getAudioOutputAddonForCurrentPlatform() {
+	if (audioOutputAddon) {
+		return audioOutputAddon
 	}
 
 	const platform = process.platform
 	const arch = process.arch
 
+	const { default: NodeModule } = await import('node:module')
+	const require = NodeModule.createRequire(import.meta.url)
+
 	if (platform === 'win32' && arch === 'x64') {
-		audioOutputModule = createRequire(import.meta.url)('../addons/bin/windows-x64-mme-output.node')
+		audioOutputAddon = require('../addons/bin/windows-x64-mme-output.node')
+	} else if (platform === 'win32' && arch === 'arm64') {
+		audioOutputAddon = require('../addons/bin/windows-arm64-mme-output.node')
 	} else if (platform === 'darwin' && arch === 'x64') {
-		audioOutputModule = createRequire(import.meta.url)('../addons/bin/macos-x64-coreaudio-output.node')
+		audioOutputAddon = require('../addons/bin/macos-x64-coreaudio-output.node')
 	} else if (platform === 'darwin' && arch === 'arm64') {
-		audioOutputModule = createRequire(import.meta.url)('../addons/bin/macos-arm64-coreaudio-output.node')
+		audioOutputAddon = require('../addons/bin/macos-arm64-coreaudio-output.node')
 	} else if (platform === 'linux' && arch === 'x64') {
-		audioOutputModule = createRequire(import.meta.url)('../addons/bin/linux-x64-alsa-output.node')
+		audioOutputAddon = require('../addons/bin/linux-x64-alsa-output.node')
 	} else if (platform === 'linux' && arch === 'arm64') {
-		audioOutputModule = createRequire(import.meta.url)('../addons/bin/linux-arm64-alsa-output.node')
+		audioOutputAddon = require('../addons/bin/linux-arm64-alsa-output.node')
 	} else {
 		throw new Error(`audio-io initialization error: platform ${platform}, ${arch} is not supported`);
 	}
 
-	return audioOutputModule!
+	return audioOutputAddon!
 }
 
 export function isPlatformSupported() {
