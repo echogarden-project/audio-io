@@ -9,7 +9,7 @@ If you still want to compile yourself, for a modification or a fork, use these i
 * Install Visual Studio 2022 build tools
 * In the `addons` directory, run `npm install` and then `npm run build-windows-x64`
 
-# Windows arm64 (assuming cross-compiling from x64)
+## Windows arm64 (assuming cross-compiling from x64)
 
 * To cross-compile for arm64 go to `Visual Studio Installer -> Individual components`, and ensure `MSVC v143 - VS 2022 C++ ARM64 build tools (latest)` is checked. Then in the `addons` directory run `npm run build-windows-arm64`
 
