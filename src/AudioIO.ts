@@ -1,4 +1,4 @@
-export { playAudioSamples, playTestTone } from './Player.js'
+export * from './Playback.js'
 
 let audioOutputAddon: AudioOutputAddon | undefined
 
@@ -11,7 +11,7 @@ export async function createAudioOutput(config: AudioOutputConfig, handler: Audi
 		throw new Error(`No valid handler function provided`)
 	}
 
-	config = { ...config }
+	config = { ...config, }
 
 	const module = await getAudioOutputAddonForCurrentPlatform()
 
@@ -47,16 +47,15 @@ export async function createAudioOutput(config: AudioOutputConfig, handler: Audi
 
 	let wrappedHandler: AudioOutputHandler
 
-	{
-		let sampleOffset = 0
+	let sampleOffset = 0
+	let timePosition = 0
 
-	 	wrappedHandler = (audioBuffer: Int16Array) => {
-			const timeOffset = sampleOffset / sampleRate / channelCount
+	wrappedHandler = (audioBuffer: Int16Array) => {
+		timePosition = sampleOffset / sampleRate / channelCount
 
-			handler(audioBuffer)
+		handler(audioBuffer)
 
-			sampleOffset += audioBuffer.length
-		}
+		sampleOffset += audioBuffer.length
 	}
 
 	const nativeResult = await module.createAudioOutput(config, wrappedHandler)
@@ -65,29 +64,30 @@ export async function createAudioOutput(config: AudioOutputConfig, handler: Audi
 
 	let isDisposed = false
 
-	const wrappedDisposeMethod = () => {
-		return new Promise<void>((resolve, reject) => {
-			if (isDisposed) {
-				resolve()
-
-				return
-			}
-
-			process.nextTick(() => {
-				try {
-					nativeDisposeMethod()
+	const wrappedResult: AudioOutput = new class {
+		dispose() {
+			return new Promise<void>((resolve, reject) => {
+				if (isDisposed) {
 					resolve()
-				} catch(e) {
-					reject(e)
+
+					return
 				}
 
-				isDisposed = true
-			})
-		})
-	}
+				process.nextTick(() => {
+					try {
+						nativeDisposeMethod()
+						resolve()
+					} catch (e) {
+						reject(e)
+					}
 
-	const wrappedResult: AudioOutput = {
-		dispose: wrappedDisposeMethod
+					isDisposed = true
+				})
+			})
+		}
+
+		get sampleOffset() { return sampleOffset }
+		get timePosition() { return timePosition }
 	}
 
 	return wrappedResult
@@ -127,7 +127,7 @@ export function isPlatformSupported() {
 	const platform = process.platform
 	const arch = process.arch
 
-	if (platform === 'win32' && arch === 'x64') {
+	if (platform === 'win32' && (arch === 'x64' || arch === 'arm64')) {
 		return true
 	}
 
@@ -144,6 +144,9 @@ export function isPlatformSupported() {
 
 export interface AudioOutput {
 	dispose(): Promise<void>
+
+	sampleOffset: number
+	timePosition: number
 }
 
 export type AudioOutputHandler = (outputBuffer: Int16Array) => void
