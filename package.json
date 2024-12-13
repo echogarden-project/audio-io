@@ -1,6 +1,6 @@
 {
 	"name": "@echogarden/audio-io",
-	"version": "0.2.3",
+	"version": "0.3.0",
 	"description": "Provides low-level audio I/O via platform-specific APIs. Includes precompiled addons for all supported platforms.",
 	"author": "Rotem Dan",
 	"license": "MIT",
@@ -10,6 +10,9 @@
 		"Core Audio",
 		"ALSA"
 	],
+	"publishConfig": {
+		"access": "public"
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/echogarden-project/audio-io"
@@ -25,10 +28,7 @@
 		"darwin",
 		"linux"
 	],
-	"publishConfig": {
-		"access": "public"
-	},
-	"main": "./dist/Exports.js",
+	"main": "./dist/AudioIO.js",
 	"type": "module",
 	"files": [
 		"src",
@@ -42,9 +42,13 @@
 	"scripts": {
 		"test": "node dist/Test.js"
 	},
+	"//dependencies": {
+		"@echogarden/wave-codec": "../wave-codec"
+	},
 	"dependencies": {
+		"@echogarden/wave-codec": "^0.2.1"
 	},
 	"devDependencies": {
-		"@types/node": "^22.8.6"
+		"@types/node": "^22.10.2"
 	}
 }
