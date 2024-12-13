@@ -3,3 +3,4 @@ dist
 .vscode
 addons/build
 unused
+test-audio
