@@ -7,9 +7,9 @@
 				"include",
 			],
 			"defines": ["NAPI_CPP_EXCEPTIONS"],
+			# "defines": ["TRACE"]
 			"cflags!": ["-fno-exceptions"],
 			"cflags_cc!": ["-fno-exceptions"],
-			# "defines": ["TRACE"]
 			"conditions": [
 				[
 					"OS=='win'",

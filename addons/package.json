@@ -3,9 +3,7 @@
 	"description": "N-API addons for the Echogarden Audio I/O package",
 	"version": "0.1.0",
 	"main": "",
-	"publishConfig": {
-		"access": "restricted"
-	},
+	"private": true,
 	"scripts": {
 		"build-windows-x64": "node-gyp rebuild -arch x64 --verbose && xcopy /Y build\\Release\\*.node .\\bin",
 		"build-windows-arm64": "node-gyp rebuild -arch arm64 --verbose && xcopy /Y build\\Release\\*.node .\\bin",
