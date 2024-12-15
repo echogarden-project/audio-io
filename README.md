@@ -75,7 +75,7 @@ await playWaveData(waveData, { bufferDuration: 125 }) // 125ms buffer duration
 `positionCallback` parameter accepts a callback that will be repeatedly called while the audio is being played, with sample-accurate playback position data. For example:
 
 ```ts
-await playWaveData(waveData, 100, (callbackData) => {
+await playWaveData(waveData, {}, (callbackData) => {
     console.log(`Current audio time position: ${callbackData.timePosition}`)
     console.log(`Current sample offset: ${callbackData.sampleOffset}`)
 })
@@ -95,7 +95,7 @@ import { playFloat32Channels } from '@echogarden/audio-io'
 
 const float32Channels: Float32Array[] = //... retrieve audio samples
 
-await playFloat32Channels(float32Channels, 44100, { bufferDuration: 150}) // 44100 Hz, 150ms buffer duration
+await playFloat32Channels(float32Channels, 44100) // 44100 Hz, default buffer duration
 ```
 
 #### `playInt16Samples(int16Samples: Int16Array, sampleRate: number, channelCount: number, options?: PlaybackOptions, positionCallback?: PositionCallback)`
@@ -108,7 +108,7 @@ import { playInt16Samples } from '@echogarden/audio-io'
 
 const int16Samples: Int16Array = //... retrieve audio samples
 
-await playInt16Samples(int16Samples, 44100, 2, { bufferDuration: 150 }) // 44100 Hz, 2 channels, 150ms buffer duration
+await playInt16Samples(int16Samples, 44100, 2) // 44100 Hz, 2 channels, default buffer duration
 ```
 
 #### `playTestTone(options?: TestToneOptions, positionCallback?: PositionCallback)`
