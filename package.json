@@ -1,6 +1,6 @@
 {
 	"name": "@echogarden/audio-io",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"description": "Provides low-level audio I/O via platform-specific APIs. Includes precompiled addons for all supported platforms.",
 	"author": "Rotem Dan",
 	"license": "MIT",
@@ -46,9 +46,9 @@
 		"@echogarden/wave-codec": "../wave-codec"
 	},
 	"dependencies": {
-		"@echogarden/wave-codec": "^0.2.1"
+		"@echogarden/wave-codec": "^0.3.2"
 	},
 	"devDependencies": {
-		"@types/node": "^22.10.2"
+		"@types/node": "^22.15.12"
 	}
 }
